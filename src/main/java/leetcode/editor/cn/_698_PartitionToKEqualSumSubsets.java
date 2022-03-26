@@ -37,58 +37,49 @@ import java.util.Arrays;
 public class _698_PartitionToKEqualSumSubsets {
   public static void main(String[] args) {
     Solution solution = new _698_PartitionToKEqualSumSubsets().new Solution();
-    System.out.println(solution.canPartitionKSubsets(new int[]{4,5,9,3,10,2,10,7,10,8,5,9,4,6,4,9}, 5));
+    System.out.println(solution.canPartitionKSubsets(new int[]{4, 5, 9, 3, 10, 2, 10, 7, 10, 8, 5, 9, 4, 6, 4, 9}, 5));
   }
 
   //leetcode submit region begin(Prohibit modification and deletion)
   class Solution {
     public boolean canPartitionKSubsets(int[] nums, int k) {
-      // 先求和
-      int maxNum = nums[0], sum = 0;
-      for (int num : nums) {
-        sum += num;
-        if (num > maxNum) {
-          maxNum = num;
-        }
-      }
-      if (sum % k != 0 || maxNum > sum / k) {
-        return false;
-      }
-      int target = sum / k;
-      int tempSum;
       // 排序
       Arrays.sort(nums);
-      boolean[] isUsed = new boolean[nums.length];
-      for (k--; k > 0; k--) {
-        if (!canMatchTarget(nums, isUsed, target, nums.length - 1)) {
-          return false;
-        }
+      // 先求和
+      int sum = 0;
+      for (int num : nums) {
+        sum += num;
       }
-      return true;
-    }
-
-    private boolean canMatchTarget(int[] nums, boolean[] isUsed, int target, int startIndex) {
-      // 匹配越界了
-      if (startIndex < 0) {
+      if (sum % k != 0 || nums[nums.length - 1] > sum / k) {
         return false;
       }
+      final int target = sum / k;
+      boolean[] isUsed = new boolean[nums.length];
+      return canMatchTarget(nums, isUsed, target, 0, nums.length - 1, k);
+    }
+
+    private boolean canMatchTarget(int[] nums, boolean[] isUsed, final int target, int sumTemp, int startIndex, int k) {
       for (; startIndex >= 0; startIndex--) {
         if (!isUsed[startIndex]
-            && target >= nums[startIndex]) {
-          target -= nums[startIndex];
+            && target >= sumTemp + nums[startIndex]) {
+          // 没有使用并且可以放入桶里，先放进去
+          sumTemp += nums[startIndex];
           isUsed[startIndex] = true;
-          if (target == 0) {
-            return true;
+          if (target == sumTemp) {
+            // 放完刚好满了，找下一个桶,剩下最后一个桶时，一定能刚好装满
+            return k < 3 || canMatchTarget(nums, isUsed, target, 0, nums.length - 1, k - 1);
           }
-          if (!canMatchTarget(nums, isUsed, target, startIndex - 1)) {
-            target += nums[startIndex];
+          // 当前桶还没装满，继续装，如果找不到合适的，就需要回溯
+          if (!canMatchTarget(nums, isUsed, target, sumTemp, startIndex - 1, k)) {
+            sumTemp -= nums[startIndex];
             isUsed[startIndex] = false;
           } else {
             return true;
           }
         }
       }
-      return target == 0;
+      // 都找完了还不能匹配到合适的，就说明装不下
+      return false;
     }
   }
 //leetcode submit region end(Prohibit modification and deletion)
