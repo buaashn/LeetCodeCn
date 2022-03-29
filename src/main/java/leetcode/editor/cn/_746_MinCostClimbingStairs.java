@@ -48,14 +48,19 @@ package leetcode.editor.cn;
 class MinCostClimbingStairs {
   public static void main(String[] args) {
     Solution solution = new MinCostClimbingStairs().new Solution();
+    System.out.println(solution.minCostClimbingStairs(new int[]{1, 100, 1, 1, 1, 100, 1, 1, 100, 1}));
   }
 
   //leetcode submit region begin(Prohibit modification and deletion)
-class Solution {
+  class Solution {
     public int minCostClimbingStairs(int[] cost) {
-
+      int[] minCost = new int[cost.length + 1];
+      for (int i = 2; i < cost.length + 1; i++) {
+        minCost[i] = Math.min(minCost[i - 2] + cost[i - 2], minCost[i - 1] + cost[i - 1]);
+      }
+      return minCost[cost.length];
     }
-}
+  }
 //leetcode submit region end(Prohibit modification and deletion)
 
 }
